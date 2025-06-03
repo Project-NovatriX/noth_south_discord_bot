@@ -24,19 +24,19 @@ module.exports = {
 
     const row = new ActionRowBuilder().addComponents(
       new ButtonBuilder()
-        .setCustomId('set_channel')
+        .setCustomId('wm_setChannel')
         .setLabel('チャンネル設定')
         .setStyle(ButtonStyle.Primary),
       new ButtonBuilder()
-        .setCustomId('set_message')
+        .setCustomId('wm_setMessage')
         .setLabel('メッセージ設定')
         .setStyle(ButtonStyle.Success),
       new ButtonBuilder()
-        .setCustomId('preview')
+        .setCustomId('wm_preview')
         .setLabel('プレビュー')
         .setStyle(ButtonStyle.Secondary),
       new ButtonBuilder()
-        .setCustomId('reset')
+        .setCustomId('wm_reset')
         .setLabel('リセット')
         .setStyle(ButtonStyle.Danger)
     );
@@ -44,7 +44,7 @@ module.exports = {
     await interaction.reply({
       embeds: [embed],
       components: [row],
-      ephemeral: true
+      flags: 64
     });
   }
 };

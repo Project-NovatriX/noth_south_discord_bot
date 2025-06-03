@@ -39,14 +39,14 @@ for (const f of fs.readdirSync('./commands').filter(x => x.endsWith('.js'))) {
   client.commands.set(cmd.data.name, cmd);
 }
 
-/* ─── Register Slash Commands ─── */
+/* ─── Register Slash Commands (Global) ─── */
 (async () => {
   const rest  = new REST({ version: '10' }).setToken(process.env.DISCORD_TOKEN);
-  const route = process.env.GUILD_ID
-    ? Routes.applicationGuildCommands(process.env.CLIENT_ID, process.env.GUILD_ID)
-    : Routes.applicationCommands(process.env.CLIENT_ID);
-  await rest.put(route, { body: [...client.commands.values()].map(c => c.data.toJSON()) });
-  console.log('✅ Slash commands registered');
+  await rest.put(
+    Routes.applicationCommands(process.env.CLIENT_ID),
+    { body: [...client.commands.values()].map(c => c.data.toJSON()) }
+  );
+  console.log('✅ Global slash commands registered');
   await client.login(process.env.DISCORD_TOKEN);
 })();
 
