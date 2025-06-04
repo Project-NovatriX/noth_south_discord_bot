@@ -20,6 +20,7 @@ const {
   /* Birthday settings */
   saveBirthdaySetting, getBirthdaySetting,
 } = require('./db');
+const { saveKnownGuild } = require('./db');
 
 /* ─── Client ─── */
 const client = new Client({
@@ -302,6 +303,13 @@ client.on(Events.InteractionCreate, async i => {
 client.once(Events.ClientReady, () => {
   console.log(`🟢 Logged in as ${client.user.tag}`);
 
+  console.log(`[INTENTS] bitfield = ${client.options.intents.bitfield}`);
+  console.log(`[INTENTS] names    =`, client.options.intents.toArray());
+  client.guilds.cache.forEach(g => {
+    console.log(`[INIT] Saving guild: ${g.name} (${g.id})`);
+    saveKnownGuild(g.id, g.name);
+  });
+
   /* 🎂 毎分誕生日チェック */
   setInterval(async () => {
     const now       = new Date();
@@ -346,3 +354,15 @@ client.once(Events.ClientReady, () => {
     });
   }, 60 * 1000); // 60秒ごとに実行
 });
+
+
+/* ─── イベントハンドラーの読み込み ─── */
+const path = require('path');
+const eventsPath = path.join(__dirname, 'events');
+for (const file of fs.readdirSync(eventsPath).filter(f => f.endsWith('.js'))) {
+  const event = require(`./events/${file}`);
+  if (event.name && event.execute) {
+    client.on(event.name, (...args) => event.execute(...args));
+    console.log(`[EVENT] Loaded handler for ${event.name}`);
+  }
+} 

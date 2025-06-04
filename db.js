@@ -16,6 +16,15 @@ db.exec(`
   );
 `);
 
+// Ensure welcome_settings table exists for index.js compatibility
+db.prepare(`
+  CREATE TABLE IF NOT EXISTS welcome_settings (
+    guild_id TEXT PRIMARY KEY,
+    welcome_channel_id TEXT NOT NULL,
+    welcome_message_template TEXT NOT NULL
+  )
+`).run();
+
 /* ───────────────── Birthdays ───────────────── */
 db.exec(`
   CREATE TABLE IF NOT EXISTS birthdays (
@@ -49,6 +58,14 @@ if (!cols.some(col => col.name === 'template')) {
   `);
   console.log('✅  template 列を追加しました');
 }
+
+/* ───────────────── Known Guilds ───────────────── */
+db.exec(`
+  CREATE TABLE IF NOT EXISTS known_guilds (
+    guild_id TEXT PRIMARY KEY,
+    name     TEXT NOT NULL
+  );
+`);
 
 /* ═══════════  関数  ═══════════ */
 
@@ -120,9 +137,20 @@ function getAllBirthdaySettings() {
   `).all();
 }
 
+/* Known Guilds */
+function saveKnownGuild(guildId, name) {
+  db.prepare(`
+    INSERT INTO known_guilds (guild_id, name)
+    VALUES (?, ?)
+    ON CONFLICT(guild_id)
+      DO UPDATE SET name = excluded.name;
+  `).run(guildId, name);
+}
+
 /* ───── exports ───── */
 module.exports = {
   saveWelcomeConfig, getWelcomeConfig,
   saveBirthday, getBirthday, deleteBirthday, getTodaysBirthdays,
   saveBirthdaySetting, getBirthdaySetting, getAllBirthdaySettings,
+  saveKnownGuild,
 };
